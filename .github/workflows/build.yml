@@ -22,8 +22,8 @@ jobs:
         run: |
 
           docker build \
-          -t ${{ inputs.service_name }}:${{ github.sha }} \
-          ./services/${{ inputs.service_name }}
+            -t ${{ inputs.service_name }}:${{ github.sha }} \
+            ./services/${{ inputs.service_name }}
 
       - name: Verify
         run: docker images
