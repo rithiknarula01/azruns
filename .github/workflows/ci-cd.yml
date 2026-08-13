@@ -18,17 +18,18 @@ jobs:
     steps:
 
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - id: detect
 
         run: |
 
-          SERVICE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
+          SERVICE=$(git diff --name-only HEAD^ HEAD \
             | grep '^services/' \
-            | cut -d'/' -f2 \
+            | awk -F/ '{print $2}' \
             | sort -u \
             | head -1)
-
           echo "service_name=$SERVICE" >> $GITHUB_OUTPUT
 
           echo "Detected Service: $SERVICE"
