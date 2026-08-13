@@ -1,0 +1,54 @@
+name: SyntraCore CI/CD
+
+on:
+  push:
+    branches:
+      - uat
+      - main
+
+jobs:
+
+  discover:
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      service_name: ${{ steps.detect.outputs.service }}
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - id: detect
+        run: |
+
+          SERVICE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
+            | grep '^services/' \
+            | cut -d'/' -f2 \
+            | sort -u \
+            | head -1)
+
+          echo "service=$SERVICE" >> $GITHUB_OUTPUT
+
+          echo "Detected Service: $SERVICE"
+
+  build:
+
+    needs: discover
+
+    uses: ./.github/workflows/build.yml
+
+    with:
+      service_name: ${{ needs.discover.outputs.service_name }}
+
+  deploy:
+
+    needs:
+      - discover
+      - build
+
+    uses: ./.github/workflows/deploy.yml
+
+    with:
+      service_name: ${{ needs.discover.outputs.service_name }}
+      environment: ${{ github.ref_name == 'main' && 'prod' || 'uat' }}
