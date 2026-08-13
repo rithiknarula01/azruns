@@ -43,25 +43,25 @@ jobs:
     with:
       service_name: ${{ needs.detect.outputs.service_name }}
 
-  # push:
+  push:
 
-  #   needs:
-  #     - detect
-  #     - build
+    needs:
+      - detect
+      - build
 
-  #   uses: ./.github/workflows/push-acr.yml
+    uses: ./.github/workflows/push-acr.yml
 
-  #   with:
-  #     service_name: ${{ needs.detect.outputs.service_name }}
+    with:
+      service_name: ${{ needs.detect.outputs.service_name }}
 
-  # deploy:
+  deploy:
 
-  #   needs:
-  #     - detect
-  #     - push
+    needs:
+      - detect
+      - push
 
-  #   uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/deploy.yml
 
-  #   with:
-  #     service_name: ${{ needs.detect.outputs.service_name }}
-  #     environment: ${{ github.ref_name == 'master' && 'prod' || 'uat' }}
+    with:
+      service_name: ${{ needs.detect.outputs.service_name }}
+      environment: ${{ github.ref_name == 'master' && 'prod' || 'uat' }}
