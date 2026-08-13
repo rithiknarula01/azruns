@@ -1,5 +1,4 @@
 name: SyntraCore CI/CD
-
 on:
   push:
     branches:
