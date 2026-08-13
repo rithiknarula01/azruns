@@ -3,23 +3,24 @@ name: SyntraCore CI/CD
 on:
   push:
     branches:
-      - uat
       - master
+      - uat
 
 jobs:
 
-  discover:
+  detect:
 
     runs-on: ubuntu-latest
 
     outputs:
-      service_name: ${{ steps.detect.outputs.service }}
+      service_name: ${{ steps.detect.outputs.service_name }}
 
     steps:
 
       - uses: actions/checkout@v4
 
       - id: detect
+
         run: |
 
           SERVICE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
@@ -28,27 +29,38 @@ jobs:
             | sort -u \
             | head -1)
 
-          echo "service=$SERVICE" >> $GITHUB_OUTPUT
+          echo "service_name=$SERVICE" >> $GITHUB_OUTPUT
 
           echo "Detected Service: $SERVICE"
 
   build:
 
-    needs: discover
+    needs: detect
 
     uses: ./.github/workflows/build.yml
 
     with:
-      service_name: ${{ needs.discover.outputs.service_name }}
+      service_name: ${{ needs.detect.outputs.service_name }}
+
+  push:
+
+    needs:
+      - detect
+      - build
+
+    uses: ./.github/workflows/push-acr.yml
+
+    with:
+      service_name: ${{ needs.detect.outputs.service_name }}
 
   deploy:
 
     needs:
-      - discover
-      - build
+      - detect
+      - push
 
     uses: ./.github/workflows/deploy.yml
 
     with:
-      service_name: ${{ needs.discover.outputs.service_name }}
-      environment: ${{ github.ref_name == 'main' && 'prod' || 'uat' }}
+      service_name: ${{ needs.detect.outputs.service_name }}
+      environment: ${{ github.ref_name == 'master' && 'prod' || 'uat' }}
