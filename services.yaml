@@ -1,16 +1,16 @@
 services:
 
   email-intake-engine:
-    path: services/email-intake-engine
-    deployment_type: appservice
-    port: 8000
+    deploy_type: appservice
 
   quote-service:
-    path: services/quote-service
-    deployment_type: containerapp
-    port: 8000
+    deploy_type: appservice
 
   job-service:
-    path: services/job-service
-    deployment_type: containerapp
-    port: 8000
+    deploy_type: appservice
+
+  crm-service:
+    deploy_type: appservice
+
+  finance-service:
+    deploy_type: appservice
