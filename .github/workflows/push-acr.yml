@@ -1,0 +1,35 @@
+name: Push ACR
+
+on:
+  workflow_call:
+
+    inputs:
+      service_name:
+        required: true
+        type: string
+
+jobs:
+
+  push:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - run: |
+          az acr login --name ${{ vars.ACR_NAME }}
+
+      - run: |
+          docker build \
+            -t ${{ vars.ACR_NAME }}.azurecr.io/${{ inputs.service_name }}:${{ github.sha }} \
+            ./services/${{ inputs.service_name }}
+
+      - run: |
+          docker push \
+            ${{ vars.ACR_NAME }}.azurecr.io/${{ inputs.service_name }}:${{ github.sha }}
