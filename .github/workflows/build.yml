@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  workflow_call:
+
+    inputs:
+      service_name:
+        required: true
+        type: string
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Build Image
+        run: |
+
+          docker build \
+          -t ${{ inputs.service_name }}:${{ github.sha }} \
+          ./services/${{ inputs.service_name }}
+
+      - name: Verify
+        run: docker images
